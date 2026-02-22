@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Светлана Курчева — Визитка</title>
     <style>
-        /* ── Variables ─────────────────────────────────────── */
         :root {
             --accent:       #7c6fff;
             --accent-2:     #ff6b8a;
@@ -13,121 +12,148 @@
             --dark-2:       #0e0c20;
             --glass:        rgba(255,255,255,0.06);
             --glass-border: rgba(255,255,255,0.11);
-            --text:         #ffffff;
             --muted:        rgba(255,255,255,0.60);
         }
 
         *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
-        html { height:100%; }
+        html, body { height:100%; }
 
         body {
-            height:100%;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
                          Helvetica, Arial, sans-serif;
             background: var(--dark);
             overflow: hidden;
         }
 
-        /* ══════════════════════════════════════════════════
-           LAYOUT
-        ══════════════════════════════════════════════════ */
-        .layout {
-            display: flex;
-            height: 100vh;
-            width: 100%;
+        /* ══ PHOTO — positioned to the right ══════════════ */
+        .photo-wrap {
+            position: fixed;
+            top: 0; right: 0;
+            height: 100%;
+            z-index: 0;
         }
 
-        /* ══════════════════════════════════════════════════
-           LEFT PANEL
-        ══════════════════════════════════════════════════ */
-        .left {
-            flex: 0 0 54%;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            padding: 3rem 3.5rem 3rem 6rem;
-            background: linear-gradient(135deg, var(--dark) 0%, var(--dark-2) 100%);
-            overflow: hidden;
-            z-index: 2;
-        }
-
-        /* Dot-grid texture */
-        .left::before {
+        /* ПРОБЛЕМА 1 — градиентное перекрытие поверх фото слева */
+        .photo-wrap::after {
             content: '';
-            position: absolute; inset: 0;
-            background-image:
-                radial-gradient(circle, rgba(124,111,255,.13) 1px, transparent 1px);
-            background-size: 30px 30px;
+            position: absolute;
+            top: 0; left: 0;
+            width: 60%; height: 100%;
+            background: linear-gradient(to right, #0a0a0a 20%, transparent 100%);
+            z-index: 1;
+        }
+
+        .photo {
+            height: 100%;
+            width: auto;
+            display: block;
+            opacity: 0;
+            animation: photoReveal 1.2s cubic-bezier(.22,1,.36,1) .4s forwards;
+        }
+
+        @keyframes photoReveal {
+            from { opacity:0; transform:translateX(16px); }
+            to   { opacity:1; transform:translateX(0); }
+        }
+
+        /* ══ GRADIENT — seamless dark→transparent fade ════
+           Photo dissolves into the dark background.
+           No panel boundary — single smooth transition.    */
+        .fade {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            background: linear-gradient(to right,
+                var(--dark)           0%,
+                var(--dark)           28%,
+                rgba(8,8,15, 0.97)   36%,
+                rgba(8,8,15, 0.88)   44%,
+                rgba(8,8,15, 0.68)   54%,
+                rgba(8,8,15, 0.38)   66%,
+                rgba(8,8,15, 0.12)   80%,
+                transparent          100%
+            );
             pointer-events: none;
         }
 
-        /* Right-edge fade into photo */
-        .left::after {
+        /* Dot-grid texture on dark side only */
+        .fade::before {
             content: '';
-            position: absolute; top:0; right:0; bottom:0;
-            width: 100px;
-            background: linear-gradient(to right, transparent, var(--dark));
-            z-index: 3;
+            position: absolute; inset: 0;
+            background-image:
+                radial-gradient(circle, rgba(124,111,255,.11) 1px, transparent 1px);
+            background-size: 30px 30px;
+            /* mask: fade matches gradient so dots only on dark area */
+            -webkit-mask-image: linear-gradient(to right, black 0%, black 30%, transparent 55%);
+            mask-image:         linear-gradient(to right, black 0%, black 30%, transparent 55%);
             pointer-events: none;
         }
 
         /* Purple glow blob */
         .glow {
-            position: absolute;
-            width: 520px; height: 520px;
+            position: fixed;
+            width: 560px; height: 560px;
             background: radial-gradient(circle,
-                rgba(124,111,255,.16) 0%,
-                transparent 70%);
-            top: 50%; left: 42%;
+                rgba(124,111,255,.15) 0%, transparent 70%);
+            top: 50%; left: 26%;
             transform: translate(-50%,-50%);
+            z-index: 1;
             pointer-events: none;
             animation: blobPulse 7s ease-in-out infinite alternate;
         }
 
         @keyframes blobPulse {
-            0%   { transform: translate(-50%,-50%) scale(1);    opacity:.7; }
-            100% { transform: translate(-50%,-50%) scale(1.18); opacity:1;  }
+            0%   { opacity:.65; transform:translate(-50%,-50%) scale(1); }
+            100% { opacity:1;   transform:translate(-50%,-50%) scale(1.18); }
         }
 
-        /* Content */
+        /* ══ CONTENT — vertically centered on left ════════ */
+        .stage {
+            position: relative;
+            z-index: 2;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 0 0 0 11%;
+        }
+
         .content {
-            position: relative; z-index: 4;
-            display: flex; flex-direction: column;
+            display: flex;
+            flex-direction: column;
             align-items: flex-start;
-            max-width: 480px;
+            max-width: 460px;
+            gap: 22px;
         }
 
         /* ── Avatar ──────────────────────────────────────── */
         .avatar {
-            width: 68px; height: 68px;
+            width: 64px; height: 64px;
             border-radius: 50%;
             background: linear-gradient(135deg, var(--accent), var(--accent-2));
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.55rem; font-weight: 800; color: #fff;
+            font-size: 1.45rem; font-weight: 800; color: #fff;
             letter-spacing: -1px;
             box-shadow:
                 0 0 0 2px rgba(255,255,255,.10),
-                0 0 22px rgba(124,111,255,.60),
-                0 0 50px rgba(124,111,255,.22);
-            margin-bottom: 1.7rem;
+                0 0 20px rgba(124,111,255,.60),
+                0 0 46px rgba(124,111,255,.22);
             opacity: 0;
             animation:
-                slideRight .75s cubic-bezier(.22,1,.36,1) .1s forwards,
-                avatarGlow 3.5s ease-in-out infinite alternate;
+                slideRight .7s cubic-bezier(.22,1,.36,1) .15s forwards,
+                avatarGlow 3.5s ease-in-out 1s infinite alternate;
         }
 
         @keyframes avatarGlow {
             to { box-shadow:
-                0 0 0 3px rgba(255,255,255,.17),
-                0 0 32px rgba(124,111,255,.85),
-                0 0 72px rgba(124,111,255,.40); }
+                0 0 0 3px rgba(255,255,255,.16),
+                0 0 30px rgba(124,111,255,.85),
+                0 0 68px rgba(124,111,255,.38); }
         }
 
         /* ── Name ────────────────────────────────────────── */
         .name {
-            font-size: clamp(46px, 5vw, 76px);
+            font-size: clamp(72px, 6vw, 80px);
             font-weight: 800;
             line-height: .95;
             letter-spacing: -3px;
@@ -135,28 +161,26 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            filter: drop-shadow(0 0 28px rgba(124,111,255,.28));
-            margin-bottom: 1.25rem;
+            filter: drop-shadow(0 0 26px rgba(124,111,255,.26));
             opacity: 0;
-            animation: slideRight .75s cubic-bezier(.22,1,.36,1) .25s forwards;
+            animation: slideRight .7s cubic-bezier(.22,1,.36,1) .28s forwards;
         }
 
         /* ── Tag row ─────────────────────────────────────── */
         .tag-row {
-            display: flex; align-items: center; gap: 12px;
-            margin-bottom: 1.25rem;
+            display: flex; align-items: center; gap: 11px;
             opacity: 0;
-            animation: slideRight .75s ease .42s forwards;
+            animation: slideRight .7s ease .42s forwards;
         }
 
         .tag-line {
-            height: 2px; width: 44px;
+            height: 2px; width: 40px;
             background: linear-gradient(90deg, var(--accent), var(--accent-2));
             border-radius: 2px;
         }
 
         .tag-label {
-            font-size: 10.5px; font-weight: 700;
+            font-size: 10px; font-weight: 700;
             letter-spacing: 2.8px;
             text-transform: uppercase;
             color: var(--accent);
@@ -164,14 +188,13 @@
 
         /* ── Specialization ──────────────────────────────── */
         .spec {
-            font-size: clamp(13.5px, 1.4vw, 16.5px);
+            font-size: clamp(18px, 1.6vw, 20px);
             color: var(--muted);
             line-height: 1.75;
-            max-width: 420px;
-            margin-bottom: 2.6rem;
-            min-height: 4.5em;
+            max-width: 400px;
+            min-height: 3.6em;
             opacity: 0;
-            animation: slideRight .75s ease .58s forwards;
+            animation: slideRight .7s ease .55s forwards;
         }
 
         .cursor {
@@ -187,14 +210,14 @@
 
         /* ── Actions ─────────────────────────────────────── */
         .actions {
-            display: flex; align-items: center; gap: .9rem;
+            display: flex; align-items: center; gap: .85rem;
             opacity: 0;
-            animation: slideRight .75s ease .82s forwards;
+            animation: slideRight .7s ease .78s forwards;
         }
 
         .social-btn {
             position: relative;
-            width: 50px; height: 50px;
+            width: 48px; height: 48px;
             border-radius: 50%;
             background: var(--glass);
             border: 1px solid var(--glass-border);
@@ -211,17 +234,17 @@
         .social-btn:hover {
             transform: scale(1.2);
             background: rgba(124,111,255,.22);
-            box-shadow: 0 0 18px rgba(124,111,255,.75), 0 0 44px rgba(124,111,255,.32);
+            box-shadow: 0 0 18px rgba(124,111,255,.75), 0 0 42px rgba(124,111,255,.30);
         }
 
         .tooltip {
             position: absolute;
-            bottom: calc(100% + 10px); left: 50%;
+            bottom: calc(100% + 9px); left: 50%;
             transform: translateX(-50%);
-            background: rgba(8,8,15,.92);
+            background: rgba(8,8,15,.93);
             border: 1px solid rgba(255,255,255,.1);
-            color: #fff; font-size: 12px;
-            padding: 5px 12px; border-radius: 8px;
+            color: #fff; font-size: 11.5px;
+            padding: 5px 11px; border-radius: 7px;
             white-space: nowrap; pointer-events: none;
             opacity: 0; transition: opacity .2s ease;
         }
@@ -231,30 +254,30 @@
             position: absolute; top:100%; left:50%;
             transform: translateX(-50%);
             border: 5px solid transparent;
-            border-top-color: rgba(8,8,15,.92);
+            border-top-color: rgba(8,8,15,.93);
         }
 
         .social-btn:hover .tooltip { opacity:1; }
 
         .btn {
             position: relative; overflow: hidden;
-            padding: .82rem 2.1rem;
+            padding: .78rem 2rem;
             border-radius: 50px; border:none; outline:none;
             background: linear-gradient(135deg, var(--accent), var(--accent-2));
             color: #fff;
-            font-size: .92rem; font-weight: 600; letter-spacing: .3px;
+            font-size: .9rem; font-weight: 600; letter-spacing: .3px;
             text-decoration: none; cursor: pointer;
             display: inline-flex; align-items: center;
             transition:
                 transform .3s cubic-bezier(.34,1.56,.64,1),
                 box-shadow .3s ease,
                 filter .3s ease;
-            box-shadow: 0 4px 20px rgba(124,111,255,.38);
+            box-shadow: 0 4px 18px rgba(124,111,255,.38);
         }
 
         .btn:hover {
             transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 8px 28px rgba(124,111,255,.6), 0 0 40px rgba(255,107,138,.22);
+            box-shadow: 0 8px 26px rgba(124,111,255,.6), 0 0 38px rgba(255,107,138,.20);
             filter: brightness(1.09);
         }
 
@@ -268,184 +291,146 @@
             pointer-events: none;
         }
 
-        @keyframes rippleOut { to { transform: scale(5); opacity:0; } }
+        @keyframes rippleOut { to { transform:scale(5); opacity:0; } }
 
+        /* Signature */
         .sig {
-            position: absolute;
-            bottom: 1.6rem; left: 6rem;
-            font-size: 11px;
-            color: rgba(255,255,255,.18);
+            position: fixed;
+            bottom: 1.4rem; left: 6rem;
+            font-size: 10.5px;
+            color: rgba(255,255,255,.17);
             letter-spacing: 1.2px;
-            z-index: 4;
-            opacity: 0;
-            animation: fadeIn 1s ease 1.4s forwards;
-        }
-
-        /* ══════════════════════════════════════════════════
-           RIGHT PANEL — photo
-        ══════════════════════════════════════════════════ */
-        .right {
-            flex: 1;
-            position: relative;
-            background: var(--dark);
-            overflow: hidden;
-        }
-
-        /* Photo: full height, natural width — zero cropping */
-        .photo {
-            position: absolute;
-            top: 0; right: 0;
-            height: 100%;
-            width: auto;
-            display: block;
-            opacity: 0;
-            animation: photoReveal 1.1s cubic-bezier(.22,1,.36,1) .5s forwards;
-        }
-
-        @keyframes photoReveal {
-            from { opacity:0; transform: translateX(20px); }
-            to   { opacity:1; transform: translateX(0);    }
-        }
-
-        /* Left-edge gradient — blends into left panel */
-        .right::before {
-            content: '';
-            position: absolute; top:0; left:0; bottom:0;
-            width: 140px;
-            background: linear-gradient(to right, var(--dark) 0%, transparent 100%);
             z-index: 2;
-            pointer-events: none;
+            opacity: 0;
+            animation: fadeIn 1s ease 1.3s forwards;
         }
 
-        /* Subtle vignette top/bottom/right */
-        .right::after {
-            content: '';
-            position: absolute; inset:0;
-            background:
-                linear-gradient(to top,    rgba(8,8,15,.45) 0%, transparent 22%),
-                linear-gradient(to bottom, rgba(8,8,15,.18) 0%, transparent 12%),
-                linear-gradient(to left,   rgba(8,8,15,.25) 0%, transparent 25%);
-            z-index: 2;
-            pointer-events: none;
-        }
-
-        /* ── Shared keyframes ───────────────────────────── */
+        /* ── Keyframes ───────────────────────────────────── */
         @keyframes slideRight {
-            from { opacity:0; transform:translateX(-22px); }
+            from { opacity:0; transform:translateX(-20px); }
             to   { opacity:1; transform:translateX(0);     }
         }
 
         @keyframes fadeIn {
-            from { opacity:0; }
-            to   { opacity:1; }
+            from { opacity:0; } to { opacity:1; }
         }
 
-        /* ══════════════════════════════════════════════════
-           RESPONSIVE
-        ══════════════════════════════════════════════════ */
+        /* ══ RESPONSIVE ═══════════════════════════════════ */
         @media (max-width: 840px) {
             body { overflow: auto; }
 
-            .layout { flex-direction: column; height: auto; min-height: 100vh; }
-
-            .right {
-                order: 1;
-                height: 55vw;
-                min-height: 220px;
-                max-height: 440px;
+            /* Photo full-width strip at top */
+            .photo-wrap {
+                position: relative;
+                top: auto; right: auto;
+                width: 100%; height: 55vw;
+                min-height: 220px; max-height: 420px;
+                overflow: hidden;
             }
 
             .photo {
-                top:0; left:50%; right:auto;
-                height:100%; width:auto;
+                height: 100%; width: auto;
+                position: absolute; top:0; left:50%;
                 transform: translateX(-50%);
-                animation: fadeIn .9s ease .3s forwards;
+                animation: fadeIn .9s ease .2s forwards;
             }
 
-            .right::before { display:none; }
+            /* Bottom fade on mobile photo */
+            .photo-wrap::after {
+                content: '';
+                position: absolute; bottom:0; left:0; right:0;
+                height: 80px;
+                background: linear-gradient(to bottom, transparent, var(--dark));
+            }
 
-            .left {
-                order: 2;
-                flex: 0 0 auto;
-                padding: 2.4rem 1.5rem 2rem;
+            .fade { display:none; }
+            .glow { display:none; }
+
+            .stage {
+                height: auto;
+                padding: 2.2rem 1.5rem 2.5rem;
                 justify-content: center;
             }
-
-            .left::after { display:none; }
 
             .content { align-items: center; text-align: center; }
             .tag-row  { justify-content: center; }
             .actions  { justify-content: center; flex-wrap: wrap; }
-            .spec     { max-width: 100%; text-align: center; }
-            .sig      { left:50%; transform:translateX(-50%); }
+            .spec     { max-width: 100%; text-align: center; min-height: 0; }
+
+            .sig { left:50%; transform:translateX(-50%); position:relative;
+                   bottom:auto; margin-top:1.4rem; }
         }
 
         @media (max-width: 480px) {
-            .left   { padding: 2rem 1.25rem 1.6rem; }
+            .stage  { padding: 1.8rem 1.25rem 2rem; }
             .name   { letter-spacing: -2px; }
-            .avatar { width:60px; height:60px; font-size:1.35rem; }
+            .avatar { width:58px; height:58px; font-size:1.3rem; }
         }
 
         @media (min-width: 1600px) {
-            .left { padding-left: 8rem; }
+            .stage { padding-left: 9rem; }
+            .sig   { left: 9rem; }
         }
     </style>
 </head>
 <body>
-<div class="layout">
 
-    <!-- ════ LEFT ════ -->
-    <div class="left">
-        <div class="glow" aria-hidden="true"></div>
+<!-- Photo sits at right, bleeds into dark via gradient -->
+<div class="photo-wrap">
+    <img class="photo"
+         src="3e0ac5d9b810f86fbafc72ba7a89754d_c10639a5-f0ce-4dde-b238-5abc722d06b1_500.jpg"
+         alt="Светлана Курчева">
+</div>
 
-        <div class="content">
-            <div class="avatar" role="img" aria-label="Монограмма СК">СК</div>
+<!-- Seamless gradient overlay — no hard boundary -->
+<div class="fade" aria-hidden="true"></div>
 
-            <h1 class="name">Светлана<br>Курчева</h1>
+<!-- Ambient glow blob -->
+<div class="glow" aria-hidden="true"></div>
 
-            <div class="tag-row" aria-hidden="true">
-                <div class="tag-line"></div>
-                <span class="tag-label">AI Builder</span>
-            </div>
+<!-- Content -->
+<main class="stage">
+    <div class="content">
 
-            <p class="spec" id="spec"><span class="cursor" aria-hidden="true"></span></p>
+        <div class="avatar" role="img" aria-label="Монограмма СК">СК</div>
 
-            <div class="actions">
-                <a class="social-btn"
-                   href="https://t.me/make_money_steadily"
-                   target="_blank" rel="noopener noreferrer"
-                   aria-label="Telegram @make_money_steadily">
-                    <span class="tooltip">@make_money_steadily</span>
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-                         xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                        <path d="M20.665 3.717l-17.73 6.837c-1.21.486-1.203
-                        1.161-.222 1.462l4.552 1.42 10.532-6.645c.498-.303
-                        .953-.14.579.192l-8.533 7.701h-.002l.002.001-.314
-                        4.692c.46 0 .663-.211.921-.46l2.211-2.15 4.599
-                        3.397c.848.467 1.457.227 1.668-.785L23.87
-                        5.065c.31-1.246-.474-1.81-1.205-1.348z"
-                        fill="currentColor"/>
-                    </svg>
-                </a>
+        <h1 class="name">Светлана<br>Курчева</h1>
 
-                <a class="btn"
-                   href="https://t.me/make_money_steadily"
-                   target="_blank" rel="noopener noreferrer"
-                   id="cta">Написать мне</a>
-            </div>
+        <div class="tag-row" aria-hidden="true">
+            <div class="tag-line"></div>
+            <span class="tag-label">AI Builder</span>
         </div>
 
-        <p class="sig">svetlana.kurcheva · 2026</p>
-    </div>
+        <p class="spec" id="spec"><span class="cursor" aria-hidden="true"></span></p>
 
-    <!-- ════ RIGHT ════ -->
-    <div class="right">
-        <img class="photo"
-             src="3e0ac5d9b810f86fbafc72ba7a89754d_c10639a5-f0ce-4dde-b238-5abc722d06b1_500.jpg"
-             alt="Светлана Курчева">
-    </div>
+        <div class="actions">
+            <a class="social-btn"
+               href="https://t.me/make_money_steadily"
+               target="_blank" rel="noopener noreferrer"
+               aria-label="Telegram @make_money_steadily">
+                <span class="tooltip">@make_money_steadily</span>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                     xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M20.665 3.717l-17.73 6.837c-1.21.486-1.203
+                    1.161-.222 1.462l4.552 1.42 10.532-6.645c.498-.303
+                    .953-.14.579.192l-8.533 7.701h-.002l.002.001-.314
+                    4.692c.46 0 .663-.211.921-.46l2.211-2.15 4.599
+                    3.397c.848.467 1.457.227 1.668-.785L23.87
+                    5.065c.31-1.246-.474-1.81-1.205-1.348z"
+                    fill="currentColor"/>
+                </svg>
+            </a>
 
-</div>
+            <a class="btn"
+               href="https://t.me/make_money_steadily"
+               target="_blank" rel="noopener noreferrer"
+               id="cta">Написать мне</a>
+        </div>
+
+    </div>
+</main>
+
+<p class="sig">svetlana.kurcheva · 2026</p>
 
 <script>
 /* Typewriter */
@@ -467,7 +452,7 @@
         }
     }
 
-    setTimeout(type, 1300);
+    setTimeout(type, 1200);
 })();
 
 /* Ripple */
